@@ -1,6 +1,8 @@
+#define F_CPU 1000000UL
 #include <stdint.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <util/delay.h>
 
 
 ISR (ADC_vect)
@@ -12,9 +14,9 @@ ISR (ADC_vect)
 int main() {
     sei();
 
-    DDRB = 0xFF;
-    DDRD = 0xFF;
-    PORTD = 0x02;
+    DDRB = 0xFF;  // LEDS
+    DDRD = 0xFF;  // Shift reg ctrl
+    PORTD = 0;
 
     ADMUX = (1 << ADLAR);   // AVREF, ADC0, left adjusted
 
@@ -23,7 +25,27 @@ int main() {
     ADCSRA |= (1 << ADATE);  // enable auto-trigger
     ADCSRA |= (1 << ADSC);  // start conversion
 
-    while (1);
+    #define PIN_SHIFT_CLK     0
+    #define PIN_SHIFT_DATA    1
+    #define PIN_SHIFT_REFRESH 2
+    #define PIN_SHIFT_RESET   3
+
+    PORTD &= ~(1 << PIN_SHIFT_RESET);
+    _delay_ms(10);
+    PORTD |= (1 << PIN_SHIFT_RESET);
+
+    uint8_t counter = 0;
+    while (1) {
+        for (uint8_t i = 0; i < 16; ++i) {
+            counter = (counter + 1) % 3;
+            uint8_t pinval = (counter <= 1) ? 1 : 0;
+
+            PORTD = (PORTD & ~7) | (pinval << PIN_SHIFT_DATA);
+            _delay_ms(10);
+            PORTD |= (1 << PIN_SHIFT_CLK) | (1 << PIN_SHIFT_REFRESH);
+            _delay_ms(10);
+        }
+    }
     
     return 0;
 }
