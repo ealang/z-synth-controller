@@ -6,13 +6,15 @@
 ISR (ADC_vect)
 {
     uint8_t val = ADCH;
-    PORTB = (PORTB & ~3) | (val >> 6);
+    PORTB = (PORTB & ~7) | (val >> 5);
 }
 
 int main() {
     sei();
 
     DDRB = 0xFF;
+    DDRD = 0xFF;
+    PORTD = 0x02;
 
     ADMUX = (1 << ADLAR);   // AVREF, ADC0, left adjusted
 
