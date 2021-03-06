@@ -9,6 +9,7 @@ typedef struct
 {
   uint16_t values[ADC_NUM_VALUES];
   uint8_t cur_value;
+  uint8_t change_count;
 } ADCState;
 
 // Initialize hw & set global instance

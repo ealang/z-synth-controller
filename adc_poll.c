@@ -31,7 +31,13 @@ void adc_poll_isr() {
     uint8_t vall = ADCL;
     uint8_t valh = ADCH;
 
-    singleton->values[singleton->cur_value] = valh << 8 | vall;
+    uint16_t new_val = valh << 8 | vall;
+    uint16_t old_val = singleton->values[singleton->cur_value];
+    if (old_val != new_val) {
+        ++singleton->change_count;
+    }
+
+    singleton->values[singleton->cur_value] = new_val;
     singleton->cur_value = (singleton->cur_value + 1) % ADC_NUM_VALUES;
 
     if (singleton->cur_value == 0) {
