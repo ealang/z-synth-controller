@@ -2,8 +2,8 @@ MCU = atmega328p
 PROGRAMMER = usbtiny
 CFLAGS += -mmcu=$(MCU)
 
-main: main.c
-	avr-gcc $(CFLAGS) main.c -o main
+main: main.c shift_ctrl.h shift_ctrl.c
+	avr-gcc $(CFLAGS) main.c shift_ctrl.c -o main
 
 .PHONY: clean
 clean:
