@@ -1,4 +1,5 @@
 #include "shift_ctrl.h"
+#include "bit_util.h"
 
 #include <avr/io.h>
 
@@ -8,12 +9,6 @@
 #define PIN_RESET   3
 
 #define ALL_PINS_MASK  0xF
-
-#define BIT_CLEAR(VAR, PIN) (VAR &= ~(1 << PIN))
-#define BIT_SET(VAR, PIN) (VAR |= (1 << PIN))
-#define BIT_WRITE(VAR, PIN, VALUE) (VAR = (VAR & ~(1 << PIN)) | ((VALUE & 1) << PIN))
-#define MASK_CLEAR(VAR, MASK) (VAR &= ~MASK)
-#define MASK_SET(VAR, MASK) (VAR |= MASK)
 
 void shift_ctrl_init() {
     MASK_SET(DDRD, ALL_PINS_MASK);
