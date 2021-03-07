@@ -3,7 +3,7 @@ PROGRAMMER = usbtiny
 CFLAGS += -mmcu=$(MCU)
 
 main: main.c shift_ctrl.h shift_ctrl.c adc_poll.c adc_poll.h bit_util.h spi_ifc.h spi_ifc.h
-	avr-gcc $(CFLAGS) main.c shift_ctrl.c adc_poll.c spi_ifc.c -o main
+	avr-gcc -O3 $(CFLAGS) main.c shift_ctrl.c adc_poll.c spi_ifc.c -o main
 
 .PHONY: clean
 clean:

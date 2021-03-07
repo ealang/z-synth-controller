@@ -14,16 +14,16 @@ ISR(SPI_STC_vect)
     spi_ifc_isr();
 }
 
-/*
 void init_leds() {
     DDRC |= 0xE;
 }
+
 void write_led(uint8_t val) {
     PORTC = (PORTC & ~0xE) | (val & 7) << 1;
 }
-*/
 
 int main() {
+    init_leds();
 
     shift_ctrl_init();
 
@@ -34,6 +34,8 @@ int main() {
     sei();
     adc_poll_start();
 
-    while (1);
+    while (1) {
+        write_led(adc_state.values[0] >> 5);
+    }
     return 0;
 }
