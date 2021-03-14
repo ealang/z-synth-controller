@@ -7,4 +7,6 @@
 #define MASK_CLEAR(VAR, MASK) (VAR &= ~MASK)
 #define MASK_SET(VAR, MASK) (VAR |= MASK)
 
+#define MASK(bit) (1 << bit)
+
 #endif
