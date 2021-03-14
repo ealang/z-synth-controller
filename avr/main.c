@@ -1,11 +1,12 @@
 #include "config.h"
+
 #include "adc_poll.h"
+#include "led.h"
 #include "shift_ctrl.h"
 #include "time.h"
 #include "usart.h"
 
 #include <avr/interrupt.h>
-#include <avr/io.h>
 
 ISR(ADC_vect) {
     adc_poll_isr();
@@ -13,14 +14,7 @@ ISR(ADC_vect) {
 
 ISR (TIMER0_OVF_vect) {
     time_timer0_ovf_isr();
-}
-
-static void init_leds() {
-    DDRC |= 0xE;
-}
-
-static void write_led(uint8_t val) {
-    PORTC = (PORTC & ~0xE) | ((val & 7) << 1);
+    led_isr();
 }
 
 static void send_values(const uint8_t *values) {
@@ -56,13 +50,20 @@ void main_loop() {
             send_values(change.live_values);
             last_send_time = cur_time;
             change_ready_to_send = 0;
+
+            // demo
+            led_set_brightness(
+                change.live_values[0]
+            );
         }
+
     }
 }
 
 int main() {
 
     shift_ctrl_init();
+    led_init();
 
     ADCState adc_state;
     adc_poll_init(&adc_state);
@@ -73,9 +74,6 @@ int main() {
     time_init();
 
     sei();
-
-    init_leds();
-    write_led(1);
 
     main_loop();
     return 0;
