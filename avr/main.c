@@ -1,17 +1,18 @@
-#include <avr/interrupt.h>
-
 #include "shift_ctrl.h"
 #include "adc_poll.h"
-#include "spi_ifc.h"
+#include "usart.h"
 
-ISR(ADC_vect)
-{
+#include <avr/interrupt.h>
+#include <avr/io.h>
+
+volatile uint16_t system_time = 0;
+
+ISR(ADC_vect) {
     adc_poll_isr();
 }
 
-ISR(SPI_STC_vect)
-{
-    spi_ifc_isr();
+ISR (TIMER0_OVF_vect) {
+    ++system_time;
 }
 
 void init_leds() {
@@ -19,7 +20,7 @@ void init_leds() {
 }
 
 void write_led(uint8_t val) {
-    PORTC = (PORTC & ~0xE) | (val & 7) << 1;
+    PORTC = (PORTC & ~0xE) | ((val & 7) << 1);
 }
 
 int main() {
@@ -29,13 +30,23 @@ int main() {
 
     ADCState adc_state;
     adc_poll_init(&adc_state);
-    spi_ifc_init(adc_state.values);
+    usart_init();
+
+    // Use Timer0 overflow interrupt for system ticks
+    TCCR0B |= (1 << CS01);  // Prescale of 8
+    TIMSK0 |= (1 << TOIE0);  // Interrupt on overflow (8bit)
 
     sei();
     adc_poll_start();
 
     while (1) {
-        write_led(adc_state.values[0] >> 5);
+        if (system_time >= 30) {
+            system_time = 0;
+
+            usart_transmit_byte(0x13);
+            usart_transmit(adc_state.values, 16);
+            usart_transmit_byte(0x37);
+        }
     }
     return 0;
 }

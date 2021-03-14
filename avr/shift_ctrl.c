@@ -11,20 +11,20 @@
 #define ALL_PINS_MASK  0xF
 
 void shift_ctrl_init() {
-    MASK_SET(DDRD, ALL_PINS_MASK);
-    MASK_CLEAR(PORTD, ALL_PINS_MASK);
-    BIT_SET(PORTD, PIN_RESET);
+    MASK_SET(DDRB, ALL_PINS_MASK);
+    MASK_CLEAR(PORTB, ALL_PINS_MASK);
+    BIT_SET(PORTB, PIN_RESET);
 }
 
 void shift_ctrl_clear() {
-    BIT_CLEAR(PORTD, PIN_RESET);
-    BIT_SET(PORTD, PIN_RESET);
+    BIT_CLEAR(PORTB, PIN_RESET);
+    BIT_SET(PORTB, PIN_RESET);
 }
 
 void shift_ctrl_shift(uint8_t bitval) {
-    BIT_WRITE(PORTD, PIN_DATA, bitval);
-    BIT_SET(PORTD, PIN_CLK);
-    BIT_CLEAR(PORTD, PIN_CLK);
+    BIT_WRITE(PORTB, PIN_DATA, bitval);
+    BIT_SET(PORTB, PIN_CLK);
+    BIT_CLEAR(PORTB, PIN_CLK);
 }
 
 void shift_ctrl_shift_word(uint16_t value) {
@@ -35,6 +35,6 @@ void shift_ctrl_shift_word(uint16_t value) {
 }
 
 void shift_ctrl_display() {
-    BIT_SET(PORTD, PIN_DISPLAY);
-    BIT_CLEAR(PORTD, PIN_DISPLAY);
+    BIT_SET(PORTB, PIN_DISPLAY);
+    BIT_CLEAR(PORTB, PIN_DISPLAY);
 }

@@ -1,17 +1,15 @@
-import spidev
-import time
+import serial
 
-spi = spidev.SpiDev()
-spi.open(0, 0)
-spi.max_speed_hz = 50000
-spi.mode = 0
+# https://pythonhosted.org/pyserial/pyserial_api.html#classes
+ser = serial.Serial(
+    '/dev/ttyUSB0',
+    baudrate=50000,
+    stopbits=serial.STOPBITS_TWO,
+    timeout=0.005,
+)
 
-i = 0
-ts = time.time()
 while True:
-    i += 1
-    data = spi.xfer(range(16 + 2))
-    if data[0] != 0xEE or data[-1] != 0xEE:
-        print(i, data)
-    if i % 1000 == 0:
-        print(i, time.time() - ts)
+    data = ser.read(18)
+    if data:
+        data_fmt = " ".join(hex(_) for _ in data)
+        print(data_fmt)
