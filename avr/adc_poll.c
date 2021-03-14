@@ -46,7 +46,13 @@ void adc_poll_isr() {
     // low must be read first
     uint8_t vall = ADCL;
     uint8_t valh = ADCH;
-    singleton->values[singleton->cur_value] = truncate_sample(valh << 8 | vall);
+
+    uint8_t existing_value = singleton->values[singleton->cur_value];
+    uint8_t new_value = truncate_sample(valh << 8 | vall);
+
+    singleton->values[singleton->cur_value] = new_value;
+    singleton->change_flag = existing_value != new_value;
+
     singleton->cur_value = (singleton->cur_value + 1) % ADC_NUM_VALUES;
 
     if (singleton->cur_value == 0) {
@@ -58,4 +64,17 @@ void adc_poll_isr() {
     shift_ctrl_display();
 
     ADCSRA |= (1 << ADSC);  // start conversion
+}
+
+char adc_poll_has_change() {
+    return singleton->change_flag;
+}
+
+ADCChange adc_poll_get_change() {
+    singleton->change_flag = 0;
+    ADCChange change = {
+        singleton->last_change_index,
+        singleton->values
+    };
+    return change;
 }
