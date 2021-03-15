@@ -5,6 +5,6 @@
 
 void led_init();
 void led_set_brightness(uint8_t brightness);
-void led_isr();
+void led_timer_isr();
 
 #endif

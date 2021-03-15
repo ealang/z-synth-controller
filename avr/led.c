@@ -20,7 +20,7 @@ void led_set_brightness(uint8_t brightness) {
     _brightness = brightness >> 2;
 }
 
-void led_isr() {
+void led_timer_isr() {
     _counter = (_counter + 1) & 0x3F;
     uint8_t new_led_val = (_counter >= _brightness) ? 0 : 1;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {

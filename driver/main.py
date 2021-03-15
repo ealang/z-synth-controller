@@ -14,6 +14,10 @@ while True:
     data = ser.read(18)
     if data:
         delta = (time.time() - t0) * 1000
-        data_fmt = " ".join(hex(_) for _ in data)
-        print(data_fmt, f"({delta:.1f} ms)")
+        hex_fmt = " ".join("{:02x}".format(_) for _ in data)
+        try:
+            str_fmt = data.decode("ascii")
+        except:
+            str_fmt = ""
+        print(f"{hex_fmt} | {str_fmt} | {delta:.1f} ms")
         t0 = time.time()

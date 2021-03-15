@@ -1,11 +1,14 @@
 #include "config.h"
 
 #include "adc_poll.h"
+#include "button_input.h"
 #include "led.h"
 #include "shift_ctrl.h"
 #include "time.h"
 #include "usart.h"
 
+#include <string.h>
+#include <stdio.h>
 #include <avr/interrupt.h>
 
 ISR(ADC_vect) {
@@ -14,7 +17,18 @@ ISR(ADC_vect) {
 
 ISR (TIMER0_OVF_vect) {
     time_timer0_ovf_isr();
-    led_isr();
+    led_timer_isr();
+    button_input_timer_isr();
+}
+
+ISR(PCINT0_vect)
+{
+    button_input_pcint0_isr();
+}
+
+ISR(PCINT2_vect)
+{
+    button_input_pcint2_isr();
 }
 
 static void send_values(const uint8_t *values) {
@@ -32,6 +46,8 @@ void main_loop() {
 
     uint8_t last_updated_sensor_idx = -1;
 
+    ButtonEvent button_event;
+
     while (1) {
         uint16_t cur_time = get_time_ticks();
 
@@ -39,6 +55,13 @@ void main_loop() {
             ADCChange change = adc_poll_get_change();
             last_updated_sensor_idx = change.last_change_index;
             change_ready_to_send = 1;
+        }
+
+        if (button_input_get_event(&button_event)) {
+            char buffer[18];
+            memset(buffer, 0, 18);
+            snprintf(buffer, 18, "button: %d %d", button_event.button_number, button_event.gesture);
+            usart_transmit(buffer, 18);
         }
 
         uint16_t time_since_send = cur_time - last_send_time;
@@ -61,9 +84,11 @@ void main_loop() {
 }
 
 int main() {
-
     shift_ctrl_init();
     led_init();
+
+    ButtonInputState button_input_state;
+    button_input_init(&button_input_state);
 
     ADCState adc_state;
     adc_poll_init(&adc_state);
