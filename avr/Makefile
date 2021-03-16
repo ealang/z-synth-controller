@@ -1,9 +1,15 @@
 MCU = atmega328p
 PROGRAMMER = usbtiny
-CFLAGS += -mmcu=$(MCU) -DCLOCK_SPEED=8000000
 
-main: main.c shift_ctrl.h shift_ctrl.c adc_poll.c adc_poll.h bit_util.h usart.c usart.h config.h time.h time.c led.h led.c button_input.h button_input.c
-	avr-gcc -O3 $(CFLAGS) main.c shift_ctrl.c adc_poll.c usart.c time.c led.c button_input.c -o main
+CDEFS += -DCLOCK_SPEED=8000000
+CDEFS += -DADC_NUM_VALUES=16
+CFLAGS += $(CDEFS) -mmcu=$(MCU) -Wall -Wextra -Werror -Wfatal-errors
+
+SOURCES = $(shell find . -name '*.c')
+HEADERS = $(shell find . -name '*.h')
+
+main: $(SOURCES) $(HEADERS)
+	avr-gcc -O3 $(CFLAGS) $(SOURCES) -o main
 
 .PHONY: clean
 clean:

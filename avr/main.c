@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include "adc_poll.h"
 #include "button_input.h"
 #include "led.h"

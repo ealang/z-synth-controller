@@ -1,8 +1,6 @@
 #ifndef ADC_POLL_H
 #define ADC_POLL_H
 
-#include "config.h"
-
 #include <stdint.h>
 
 typedef struct
