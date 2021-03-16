@@ -66,15 +66,16 @@ void adc_poll_isr() {
     ADCSRA |= (1 << ADSC);  // start conversion
 }
 
-char adc_poll_has_change() {
-    return singleton->change_flag;
+char adc_poll_get_update(ADCChange *change) {
+    if (singleton->change_flag) {
+        singleton->change_flag = 0;
+        change->last_change_index=singleton->last_change_index;
+        change->live_values=singleton->values;
+        return 1;
+    }
+    return 0;
 }
 
-ADCChange adc_poll_get_change() {
-    singleton->change_flag = 0;
-    ADCChange change = {
-        singleton->last_change_index,
-        singleton->values
-    };
-    return change;
+const uint8_t *adc_poll_get_live_values() {
+    return singleton->values;
 }

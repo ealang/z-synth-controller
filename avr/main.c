@@ -45,13 +45,16 @@ void main_loop() {
     uint8_t last_updated_sensor_idx = -1;
 
     ButtonEvent button_event;
+    uint8_t show_sensor = 2;
+
+    ADCChange change;
 
     while (1) {
         uint16_t cur_time = get_time_ticks();
 
-        if (adc_poll_has_change()) {
-            ADCChange change = adc_poll_get_change();
-            last_updated_sensor_idx = change.last_change_index;
+        // TODO: poll and return style
+        if (adc_poll_get_update(&change)) {
+            // last_updated_sensor_idx = change.last_change_index;
             change_ready_to_send = 1;
         }
 
@@ -67,14 +70,15 @@ void main_loop() {
             (change_ready_to_send || time_since_send >= max_send_interval) &&
             (time_since_send >= min_send_interval)
         ) {
-            ADCChange change = adc_poll_get_change();
-            send_values(change.live_values);
+
+            const uint8_t *live_values = adc_poll_get_live_values();
+            send_values(live_values);
             last_send_time = cur_time;
             change_ready_to_send = 0;
 
             // demo
             led_set_brightness(
-                change.live_values[0]
+                live_values[show_sensor]
             );
         }
 

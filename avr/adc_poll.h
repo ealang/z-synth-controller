@@ -24,9 +24,8 @@ void adc_poll_start();
 // ADC_vect interrupt handler
 void adc_poll_isr();
 
-// Return 1 if an unconsumed change is available
-char adc_poll_has_change();
-// Access current data
-ADCChange adc_poll_get_change();
+// Return 1 if an unconsumed update is available and write value into `update`.
+char adc_poll_get_update(ADCChange *update);
+const uint8_t *adc_poll_get_live_values();
 
 #endif
