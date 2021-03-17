@@ -1,9 +1,11 @@
 #include "adc_poll.h"
 #include "button_input.h"
 #include "led.h"
+#include "preset_store.h"
 #include "shift_ctrl.h"
 #include "time.h"
 #include "usart.h"
+#include "params.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -35,6 +37,10 @@ static void send_values(const uint8_t *values) {
     usart_transmit_byte(0x37);
 }
 
+static uint8_t difference(uint8_t a, uint8_t b) {
+    return a > b ? a - b : b - a;
+}
+
 void main_loop() {
 
     uint16_t last_send_time = 0;
@@ -42,27 +48,54 @@ void main_loop() {
     uint16_t max_send_interval = MS_TO_TICKS(1000);
     char change_ready_to_send = 0;
 
-    uint8_t last_updated_sensor_idx = -1;
-
     ButtonEvent button_event;
-    uint8_t show_sensor = 2;
 
     ADCChange change;
+
+    ParamsState params_state;
+    params_init(&params_state);
+
+    led_set_brightness(0x80);
 
     while (1) {
         uint16_t cur_time = get_time_ticks();
 
-        // TODO: poll and return style
         if (adc_poll_get_update(&change)) {
-            // last_updated_sensor_idx = change.last_change_index;
+            uint8_t index = change.last_change_index;
+
+            uint8_t pristine_value;
+            if (params_get_pristine_index_value(&params_state, index, &pristine_value)) {
+                uint8_t cur_value = change.live_values[index];
+                uint16_t delta = difference(cur_value, pristine_value) * 2;
+                if (delta > 0x78) {
+                    delta = 0x78;
+                }
+                led_set_brightness(0x80 - delta);
+            }
+
+            params_make_index_dirty(&params_state, index);
+            params_set_live_values(&params_state, change.live_values);
             change_ready_to_send = 1;
         }
 
         if (button_input_get_event(&button_event)) {
-            char buffer[18];
-            memset(buffer, 0, 18);
-            snprintf(buffer, 18, "button: %d %d", button_event.button_number, button_event.gesture);
-            usart_transmit(buffer, 18);
+            uint8_t preset = button_event.button_number;
+            char changed_state = 0;
+            if (button_event.gesture == ButtonShortPress) {
+                uint8_t buffer[ADC_NUM_VALUES];
+                if (load_presets(preset, buffer)) {
+                    params_set_pristine_values(&params_state, buffer);
+                    changed_state = 1;
+                }
+            } else {
+                params_make_pristine(&params_state);
+                save_presets(preset, params_get_active_values(&params_state));
+                changed_state = 1;
+            }
+            if (changed_state) {
+                led_set_brightness(0x80);
+                change_ready_to_send = 1;
+            }
         }
 
         uint16_t time_since_send = cur_time - last_send_time;
@@ -70,16 +103,10 @@ void main_loop() {
             (change_ready_to_send || time_since_send >= max_send_interval) &&
             (time_since_send >= min_send_interval)
         ) {
-
-            const uint8_t *live_values = adc_poll_get_live_values();
-            send_values(live_values);
+            const uint8_t *values = params_get_active_values(&params_state);
+            send_values(values);
             last_send_time = cur_time;
             change_ready_to_send = 0;
-
-            // demo
-            led_set_brightness(
-                live_values[show_sensor]
-            );
         }
 
     }

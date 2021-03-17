@@ -51,7 +51,11 @@ void adc_poll_isr() {
     uint8_t new_value = truncate_sample(valh << 8 | vall);
 
     singleton->values[singleton->cur_value] = new_value;
-    singleton->change_flag = existing_value != new_value;
+    char changed = existing_value != new_value;
+    singleton->change_flag = changed;
+    if (changed) {
+        singleton->last_change_index = singleton->cur_value;
+    }
 
     singleton->cur_value = (singleton->cur_value + 1) % ADC_NUM_VALUES;
 
@@ -69,8 +73,8 @@ void adc_poll_isr() {
 char adc_poll_get_update(ADCChange *change) {
     if (singleton->change_flag) {
         singleton->change_flag = 0;
-        change->last_change_index=singleton->last_change_index;
-        change->live_values=singleton->values;
+        change->last_change_index = singleton->last_change_index;
+        change->live_values = singleton->values;
         return 1;
     }
     return 0;
