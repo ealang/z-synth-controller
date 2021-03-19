@@ -17,17 +17,15 @@ ISR(ADC_vect) {
 
 ISR (TIMER0_OVF_vect) {
     time_timer0_ovf_isr();
-    led_timer_isr();
+    led_on_clock_tick_update();
     button_input_on_clock_tick_update();
 }
 
-ISR(PCINT0_vect)
-{
+ISR(PCINT0_vect) {
     button_input_pcint0_isr();
 }
 
-ISR(PCINT2_vect)
-{
+ISR(PCINT2_vect) {
     button_input_pcint2_isr();
 }
 
@@ -39,6 +37,16 @@ static void send_values(const uint8_t *values) {
 
 static uint8_t difference(uint8_t a, uint8_t b) {
     return a > b ? a - b : b - a;
+}
+
+static void play_led_error_sequence() {
+    uint8_t brightness = 0x40;
+    led_set_sequence(brightness, 4, MS_TO_TICKS(50));
+}
+
+static void play_led_ack_sequence() {
+    uint8_t brightness = 0x40;
+    led_set_sequence(brightness, 2, MS_TO_TICKS(150));
 }
 
 void main_loop() {
@@ -55,7 +63,7 @@ void main_loop() {
     ParamsState params_state;
     params_init(&params_state);
 
-    led_set_brightness(0x80);
+    led_set_brightness(8);
 
     while (1) {
         uint16_t cur_time = get_time_ticks();
@@ -86,11 +94,14 @@ void main_loop() {
                 if (load_presets(preset, buffer)) {
                     params_set_pristine_values(&params_state, buffer);
                     changed_state = 1;
+                } else {
+                    play_led_error_sequence();
                 }
             } else {
                 params_make_pristine(&params_state);
                 save_presets(preset, params_get_active_values(&params_state));
                 changed_state = 1;
+                play_led_ack_sequence();
             }
             if (changed_state) {
                 led_set_brightness(0x80);
@@ -114,7 +125,9 @@ void main_loop() {
 
 int main() {
     shift_ctrl_init();
-    led_init();
+
+    LedState led_state;
+    led_init(&led_state);
 
     ButtonInputState button_input_state;
     button_input_init(&button_input_state);
