@@ -83,7 +83,7 @@ static void process_button_state_change() {
     singleton->last_state = new_state;
 }
 
-void button_input_timer_isr() {
+void button_input_on_clock_tick_update() {
     uint16_t cur_time = get_time_ticks();
     uint16_t button_states = singleton->last_state;
 

@@ -22,7 +22,7 @@ typedef struct {
 void button_input_init(ButtonInputState *state);
 char button_input_get_event(ButtonEvent *event);
 
-void button_input_timer_isr();
+void button_input_on_clock_tick_update();
 void button_input_pcint0_isr();
 void button_input_pcint2_isr();
 

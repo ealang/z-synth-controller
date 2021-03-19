@@ -18,7 +18,7 @@ ISR(ADC_vect) {
 ISR (TIMER0_OVF_vect) {
     time_timer0_ovf_isr();
     led_timer_isr();
-    button_input_timer_isr();
+    button_input_on_clock_tick_update();
 }
 
 ISR(PCINT0_vect)
