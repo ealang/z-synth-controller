@@ -9,6 +9,9 @@
 
 #include <avr/interrupt.h>
 
+#define PACKET_HEADER_ACTIVE_PARAMS 1
+#define PACKET_HEADER_LOGGING       2
+
 ISR(ADC_vect) {
     adc_poll_isr();
 }
@@ -28,9 +31,13 @@ ISR(PCINT2_vect) {
 }
 
 static void send_values(const uint8_t *values) {
-    usart_transmit_byte(0x13);
+    uint8_t checksum = 1 + PACKET_HEADER_ACTIVE_PARAMS;
+    for (uint8_t i = 0; i < ADC_NUM_VALUES; ++i) {
+        checksum += values[i];
+    }
+    usart_transmit_byte(PACKET_HEADER_ACTIVE_PARAMS);
     usart_transmit(values, ADC_NUM_VALUES);
-    usart_transmit_byte(0x37);
+    usart_transmit_byte(checksum);
 }
 
 static uint8_t difference(uint8_t a, uint8_t b) {
