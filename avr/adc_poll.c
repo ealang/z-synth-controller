@@ -42,7 +42,9 @@ void adc_poll_start() {
     ADCSRA |= (1 << ADSC);  // start conversion
 }
 
-static char filter_sample(SampleFilter *filter, uint8_t new_value, uint8_t *out) {
+static char filter_sample(SampleFilter *filter, uint8_t raw_value, uint8_t *out) {
+    uint8_t new_value = compute_rolling_avg_next(&filter->samples, raw_value);
+
     uint16_t cur_time = get_time_ticks();
 
     char changed = 0;

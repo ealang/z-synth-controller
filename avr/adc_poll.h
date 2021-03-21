@@ -1,6 +1,8 @@
 #ifndef ADC_POLL_H
 #define ADC_POLL_H
 
+#include "rolling_avg.h"
+
 #include <stdint.h>
 
 typedef struct {
@@ -8,6 +10,7 @@ typedef struct {
   uint8_t upper_bound;
   uint8_t last_value;
   uint16_t time;
+  RollingAvg samples;
 } SampleFilter;
 
 typedef struct {
