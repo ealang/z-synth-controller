@@ -40,7 +40,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mapping-config", required=True)
     parser.add_argument("--serial-dev", default="/dev/ttyUSB0")
-    parser.add_argument("--midi-dev", default="z-synth-ctrl", help="Midi output device to create")
+    parser.add_argument("--midi-dev", default="z-synth", help="Midi device to connect to (first substring match)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging")
 
     args = parser.parse_args()
@@ -52,7 +52,7 @@ def main() -> None:
 
     param_mappings = load_param_mappings(args.mapping_config)
 
-    logger.info(f"Using serial dev: {args.serial_dev}, midi dev: {args.midi_dev}")
+    logger.debug(f"Using serial dev: {args.serial_dev}, midi dev: {args.midi_dev}")
 
     midi_delivery = MidiDelivery(args.midi_dev, param_mappings)
 

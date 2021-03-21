@@ -10,37 +10,51 @@ from .param_mapping import ParamMapping, execute_mapping
 
 logger = logging.getLogger(__name__)
 
+MIDI_CLIENT_NAME = "zs-driver"
 NRPN_MSB_VALUE = 0x10
 
 
 class MidiDelivery:
-    """
-    Send messages to midi output port.
+    """ Send messages to target midi port. """
 
-    TODO: this code has no idea if messages need to be resent (e.g.
-    z-synth restarted and needs all the params again). As a quick solution, it
-    is continuously re-sending all params.
-    """
-
-    def __init__(self, device_name: str, param_mappings: Dict[int, ParamMapping]) -> None:
+    def __init__(self, delivery_device_name: str, param_mappings: Dict[int, ParamMapping]) -> None:
+        self._last_params = None
         self._param_mappings = param_mappings
-        self._device = open_midioutput(
-            port=0,
-            client_name=device_name,
-            interactive=False,
-            use_virtual=True,
-        )[0]
+        self._device = rtmidi.MidiOut(name=MIDI_CLIENT_NAME)
+        self._delivery_device_name = delivery_device_name
 
     def __call__(self, params: List[int]) -> None:
+        MidiDelivery._update_connection_state(self._device, self._delivery_device_name)
+        if not self._device.is_port_open():
+            self._last_params = None
+            return
+
         commands = MidiDelivery._params_to_midi_messages(
-            params,
+            MidiDelivery._diff_params(self._last_params, params),
             self._param_mappings,
         )
         for command in commands:
             self._device.send_message(command)
+        self._last_params = params
 
     @classmethod
-    def _params_to_midi_messages(cls, params: List[int], param_mappings: Dict[int, ParamMapping]) -> Iterable[Tuple[int, int, int]]:
+    def _update_connection_state(cls, device: rtmidi.MidiOut, delivery_device_name: str) -> None:
+        """
+        TODO: This is a suboptimal way to track the availability of z-synth. It would be nice
+        to get a callback if z-synth goes down, so we know to resend all the parameters.
+
+        Problems: this fails to detect quick bounces, adds a few ms of latency, and doesn't control the
+        connection polling interval.
+        """
+        for port_num, other_device_name in enumerate(device.get_ports()):
+            if delivery_device_name in other_device_name and other_device_name != MIDI_CLIENT_NAME:
+                if not device.is_port_open():
+                    device.open_port(port_num)
+                return
+        device.close_port()
+
+    @classmethod
+    def _params_to_midi_messages(cls, params: List[Tuple[int, int]], param_mappings: Dict[int, ParamMapping]) -> Iterable[Tuple[int, int, int]]:
         """
         Given (param id, param value) tuples, return a sequence of NRPN midi commands.
         """
@@ -49,10 +63,21 @@ class MidiDelivery:
 
         yield CONTROL_CHANGE, NRPN_MSB, NRPN_MSB_VALUE
 
-        for param_id, param_value in enumerate(params):
+        for param_id, param_value in params:
             if param_id not in param_mappings:
+                logger.debug("No config present for param %d", param_id)
                 continue
+
+            logger.debug("Resending param %d", param_id)
 
             mapping = param_mappings[param_id]
             yield CONTROL_CHANGE, NRPN_LSB, mapping.nrpn
             yield CONTROL_CHANGE, DATA_ENTRY_MSB, execute_mapping(mapping, param_value)
+
+    @classmethod
+    def _diff_params(cls, before: Optional[List[int]], after: List[int]) -> List[Tuple[int, int]]:
+        return [
+            (param_id, param_value)
+            for param_id, param_value in enumerate(after)
+            if not before or before[param_id] != after[param_id]
+        ]
