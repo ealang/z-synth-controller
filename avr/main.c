@@ -7,8 +7,6 @@
 #include "usart.h"
 #include "params.h"
 
-#include <string.h>
-#include <stdio.h>
 #include <avr/interrupt.h>
 
 ISR(ADC_vect) {
@@ -104,7 +102,7 @@ void main_loop() {
                 play_led_ack_sequence();
             }
             if (changed_state) {
-                led_set_brightness(0x80);
+                led_set_brightness(8);
                 change_ready_to_send = 1;
             }
         }

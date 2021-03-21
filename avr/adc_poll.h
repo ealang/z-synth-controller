@@ -3,16 +3,23 @@
 
 #include <stdint.h>
 
-typedef struct
-{
+typedef struct {
+  uint8_t lower_bound;
+  uint8_t upper_bound;
+  uint8_t last_value;
+  uint16_t time;
+} SampleFilter;
+
+typedef struct {
   uint8_t values[ADC_NUM_VALUES];
   uint8_t cur_value;
   char change_flag;
   uint8_t last_change_index;
+
+  SampleFilter filters[ADC_NUM_VALUES];
 } ADCState;
 
-typedef struct
-{
+typedef struct {
   uint8_t last_change_index;
   const uint8_t *live_values;
 } ADCChange;

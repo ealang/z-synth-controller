@@ -3,7 +3,7 @@ PROGRAMMER = usbtiny
 
 CDEFS += -DCLOCK_SPEED=8000000
 CDEFS += -DADC_NUM_VALUES=16
-CFLAGS += $(CDEFS) -mmcu=$(MCU) -Wall -Wextra -Werror -Wfatal-errors
+CFLAGS += $(CDEFS) -mmcu=$(MCU) -Wall -Wextra -Wfatal-errors
 
 SOURCES = $(shell find . -name '*.c')
 HEADERS = $(shell find . -name '*.h')
