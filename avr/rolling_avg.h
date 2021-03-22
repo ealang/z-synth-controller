@@ -8,6 +8,7 @@
 typedef struct {
     uint8_t i;
     uint8_t values[ROLLING_AVG_NUM_VALUES];
+    uint8_t count;
 } RollingAvg;
 
 uint8_t compute_rolling_avg_next(RollingAvg *avg, uint8_t value);
