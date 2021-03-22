@@ -1,23 +1,38 @@
 {
-    "0": {
+    "2": {
         "name": "gen1 coarse tune",
         "nrpn": 19,
-        "mapping_type": "quantized",
+        "mapping_type": "weighted",
         "mapping_params": {
-            "num_positions": 25
+            "values": [
+                [[0,   0], 5],
+                [[12, 12], 5],
+                [[13, 23],  1],
+                [[24, 24], 5],
+                [[25, 35],  1],
+                [[36, 36], 5],
+                [[48, 48], 5]
+            ]
         }
     },
-    "1": {
+    "0": {
         "name": "gen1 wave type",
         "nrpn": 0,
-        "mapping_type": "quantized",
+        "mapping_type": "linear",
         "mapping_params": {
             "num_positions": 8
         }
     },
-    "2": {
-        "name": "gen1 amp",
-        "nrpn": 2,
-        "mapping_type": "linear"
+    "1": {
+        "name": "gen1 fine tune",
+        "nrpn": 21,
+        "mapping_type": "weighted",
+        "mapping_params": {
+            "values": [
+                [[0, 63], 1],
+                [[64, 64], 20],
+                [[65, 127],  1]
+            ]
+        }
     }
 }

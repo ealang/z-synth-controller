@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 class MappingType(Enum):
     LINEAR = "linear"
-    QUANTIZED = "quantized"
+    WEIGHTED = "weighted"
 
 
 @dataclass
@@ -36,19 +36,32 @@ def load_param_mappings(file_path: str) -> Dict[int, ParamMapping]:
 
 
 def _linear_mapping(value: int, params: Dict[str, Any]) -> int:
-    """ From 8 bit sensor value to 7 bit midi. """
-    return value >> 1
-
-
-def _quantized_mapping(value: int, params: Dict[str, Any]) -> int:
     """ From 8 bit sensor value to n position quantized. """
-    num_positions = params["num_positions"]
+    num_positions = params.get("num_positions", 128)
     return int((value / 256) * num_positions)
+
+
+def _weighted_mapping(input_value: int, params: Dict[str, Any]) -> int:
+    """ From 8 bit sensor value to weighted space. """
+    values = params["values"]
+    num_positions = sum(
+        (end - start + 1) * weight
+        for [[start, end], weight] in values
+    )
+    target_pos = int((input_value / 256) * num_positions)
+    cur_pos = 0
+    for [[start, end], weight] in values:
+        for output_value in range(start, end + 1):
+            if target_pos - cur_pos < weight:
+                return output_value
+            cur_pos += weight
+
+    raise Exception(f"Failed to map {value}")
 
 
 _MAPPING_TYPE_FUNCS = {
     MappingType.LINEAR: _linear_mapping,
-    MappingType.QUANTIZED: _quantized_mapping,
+    MappingType.WEIGHTED: _weighted_mapping,
 }
 
 
