@@ -29,13 +29,15 @@ class MidiDelivery:
             self._last_params = None
             return
 
+        midi_params = MidiDelivery._sensor_to_midi_values(params, self._param_mappings)
+
         commands = MidiDelivery._params_to_midi_messages(
-            MidiDelivery._diff_params(self._last_params, params),
+            MidiDelivery._diff_params(self._last_params, midi_params),
             self._param_mappings,
         )
         for command in commands:
             self._device.send_message(command)
-        self._last_params = params
+        self._last_params = midi_params
 
     @classmethod
     def _update_connection_state(cls, device: rtmidi.MidiOut, delivery_device_name: str) -> None:
@@ -54,25 +56,35 @@ class MidiDelivery:
         device.close_port()
 
     @classmethod
+    def _sensor_to_midi_values(cls, params: List[int], param_mappings: Dict[int, ParamMapping]) -> List[int]:
+        """ Use configured mapping to determine midi value for each parameter. """
+        return [
+            (
+                execute_mapping(param_mappings[param_id], param_value)
+                if param_id in param_mappings else 0
+            )
+            for param_id, param_value in enumerate(params)
+        ]
+
+    @classmethod
     def _params_to_midi_messages(cls, params: List[Tuple[int, int]], param_mappings: Dict[int, ParamMapping]) -> Iterable[Tuple[int, int, int]]:
         """
-        Given (param id, param value) tuples, return a sequence of NRPN midi commands.
+        Given (param id, param midi value) tuples, return a sequence of NRPN midi commands.
         """
         if not params:
             return
 
         yield CONTROL_CHANGE, NRPN_MSB, NRPN_MSB_VALUE
 
-        for param_id, param_value in params:
+        for param_id, param_midi_value in params:
             if param_id not in param_mappings:
                 logger.debug("No config present for param %d", param_id)
                 continue
 
             logger.debug("Resending param %d", param_id)
 
-            mapping = param_mappings[param_id]
-            yield CONTROL_CHANGE, NRPN_LSB, mapping.nrpn
-            yield CONTROL_CHANGE, DATA_ENTRY_MSB, execute_mapping(mapping, param_value)
+            yield CONTROL_CHANGE, NRPN_LSB, param_mappings[param_id].nrpn
+            yield CONTROL_CHANGE, DATA_ENTRY_MSB, param_midi_value
 
     @classmethod
     def _diff_params(cls, before: Optional[List[int]], after: List[int]) -> List[Tuple[int, int]]:
