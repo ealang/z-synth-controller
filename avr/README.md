@@ -1,8 +1,13 @@
 # z-synth-controller
 
-WIP physical controller for [z-synth](https://github.com/ealang/z-synth).
+Embedded controller board code. Runs on a ATmega328P. See Makefile.
 
-8Mhz clock assumed. Set clock for ATmega328P:
+Purpose:
+- Read many potentiometers (32) using an ADC and shift registers
+- Send updates over USART (tested with [Adafruit CP2104](https://www.adafruit.com/product/3309))
+- Allow parameter saving/loading from EEPROM
+
+Set to 8Mhz:
 ```
 avrdude -c usbtiny -p atmega328p -U lfuse:w:0xE2:m
 ```
