@@ -9,7 +9,6 @@ import serial
 from .board_packet import BoardPacket, ActiveParameters, BoardLogging
 
 
-BAUDRATE = 50000
 TIMEOUT = 0.005
 PACKET_SIZE = 34
 DEVICE_POLL_TIME = 1
@@ -40,7 +39,7 @@ def _parse_packet(data: bytes) -> Optional[BoardPacket]:
     return None
 
 
-def _forever_device_reader(device_name: str):
+def _forever_device_reader(device_name: str, baudrate: int):
     """ Auto-reconnecting serial device reader. """
     cur_device = None
 
@@ -49,7 +48,7 @@ def _forever_device_reader(device_name: str):
             logger.debug("Opening serial device %s", device_name)
             return serial.Serial(
                 device_name,
-                baudrate=BAUDRATE,
+                baudrate=baudrate,
                 stopbits=serial.STOPBITS_TWO,
                 timeout=TIMEOUT,
             )
@@ -77,9 +76,9 @@ def _forever_device_reader(device_name: str):
 
 
 class BoardReceiver(Thread):
-    def __init__(self, device: str, publish_queue: Queue) -> None:
+    def __init__(self, device: str, publish_queue: Queue, baudrate: int) -> None:
         super().__init__()
-        self._device_reader = _forever_device_reader(device)
+        self._device_reader = _forever_device_reader(device, baudrate)
         self._publish_queue = publish_queue
         self._exit = False
 

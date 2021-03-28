@@ -41,6 +41,7 @@ def main() -> None:
     parser.add_argument("--mapping-config", required=True)
     parser.add_argument("--serial-dev", default="/dev/ttyUSB0")
     parser.add_argument("--midi-dev", default="z-synth", help="Midi device to connect to (first substring match)")
+    parser.add_argument("--baudrate", default=50000, type=int, help="Serial device baudrate in Hz")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging")
 
     args = parser.parse_args()
@@ -60,6 +61,7 @@ def main() -> None:
     board = BoardReceiver(
         device=args.serial_dev,
         publish_queue=board_queue,
+        baudrate=args.baudrate,
     )
     try:
         board.start()
