@@ -2,7 +2,7 @@ MCU = atmega328p
 PROGRAMMER = usbtiny
 
 CDEFS += -DCLOCK_SPEED=8000000
-CDEFS += -DADC_NUM_VALUES=16
+CDEFS += -DADC_NUM_VALUES=32
 CFLAGS += $(CDEFS) -mmcu=$(MCU) -Wall -Wextra -Wfatal-errors
 
 SOURCES = $(shell find . -name '*.c')

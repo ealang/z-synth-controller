@@ -11,7 +11,7 @@ from .board_packet import BoardPacket, ActiveParameters, BoardLogging
 
 BAUDRATE = 50000
 TIMEOUT = 0.005
-PACKET_SIZE = 18
+PACKET_SIZE = 34
 DEVICE_POLL_TIME = 1
 
 PACKET_HEADER_ACTIVE_PARAMS = 1
