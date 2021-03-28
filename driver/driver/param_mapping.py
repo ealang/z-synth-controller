@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 
 class MappingType(Enum):
@@ -13,6 +13,7 @@ class MappingType(Enum):
 class ParamMapping:
     name: str
     nrpn: int  # midi non-registered parameter number lsb
+    adc_range: Tuple[int, int]  # sensor range inclusive
     mapping_type: MappingType
     mapping_params: Dict[str, Any]
 
@@ -21,6 +22,7 @@ class ParamMapping:
         return ParamMapping(
             name=data["name"],
             nrpn=data["nrpn"],
+            adc_range=tuple(data["adc_range"]),
             mapping_type=MappingType(data["mapping_type"]),
             mapping_params=data.get("mapping_params", {}),
         )
@@ -35,20 +37,28 @@ def load_param_mappings(file_path: str) -> Dict[int, ParamMapping]:
     }
 
 
-def _linear_mapping(value: int, params: Dict[str, Any]) -> int:
-    """ From 8 bit sensor value to n position quantized. """
+def _linear_mapping(input_value: float, params: Dict[str, Any]) -> int:
+    """
+    Map input to a range of values.
+
+    :param input_value: Value in range [0, 1)
+    """
     num_positions = params.get("num_positions", 128)
-    return int((value / 256) * num_positions)
+    return int(input_value * num_positions)
 
 
-def _weighted_mapping(input_value: int, params: Dict[str, Any]) -> int:
-    """ From 8 bit sensor value to weighted space. """
+def _weighted_mapping(input_value: float, params: Dict[str, Any]) -> int:
+    """
+    Map input to a weighted range of values.
+
+    :param input_value: Value in range [0, 1)
+    """
     values = params["values"]
     num_positions = sum(
         (end - start + 1) * weight
         for [[start, end], weight] in values
     )
-    target_pos = int((input_value / 256) * num_positions)
+    target_pos = int(input_value * num_positions)
     cur_pos = 0
     for [[start, end], weight] in values:
         for output_value in range(start, end + 1):
@@ -65,5 +75,18 @@ _MAPPING_TYPE_FUNCS = {
 }
 
 
+def _voltage_to_resistance(v: int) -> float:
+    if v == 0:
+        return 0
+    return (255 / v) - 1
+
+
 def execute_mapping(mapping: ParamMapping, value: int) -> int:
-    return _MAPPING_TYPE_FUNCS[mapping.mapping_type](value, mapping.mapping_params)
+    adc_min, adc_max = mapping.adc_range
+    value = max(min(value, adc_max), adc_min);
+
+    min_r = _voltage_to_resistance(adc_min)
+    max_r = _voltage_to_resistance(adc_max + 1)
+    value_r = _voltage_to_resistance(value)
+    value_r_norm = (value_r - min_r) / (max_r - min_r)
+    return _MAPPING_TYPE_FUNCS[mapping.mapping_type](value_r_norm, mapping.mapping_params)
