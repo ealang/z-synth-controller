@@ -7,29 +7,14 @@
 
 static ADCState* singleton = 0;
 
-#define MIN_EXPECTED_SAMPLE 512
-#define MAX_EXPECTED_SAMPLE 1024
-#define SAMPLE_BIAS 16
-
-#define FILTER_BOUNDARY  6
+#define FILTER_BOUNDARY  4
 #define FILTER_TIME MS_TO_TICKS(200)
-
-static uint8_t truncate_sample(uint16_t sample) {
-    sample += SAMPLE_BIAS;
-    if (sample >= MAX_EXPECTED_SAMPLE) {
-        return 0xFF;
-    }
-    if (sample <= MIN_EXPECTED_SAMPLE) {
-        return 0;
-    }
-    return (sample >> 1) & 0xFF;
-}
 
 void adc_poll_init(ADCState *instance) {
     memset(instance, 0, sizeof(ADCState));
     singleton = instance;
 
-    ADMUX = 0;  // AVREF, ADC0, left adjusted
+    ADMUX = (1 << ADLAR);  // AVREF, ADC0, 8 bit mode
     ADCSRA = (1 << ADEN) | // enable ADC
              (1 << ADIE) | // enable interrupt
              (1 << ADPS2) | (1 << ADPS1); // 64 prescale (8mhz/64 = 125khz)
@@ -96,16 +81,12 @@ void adc_poll_isr() {
         return;
     }
 
-    // low must be read first
-    uint8_t vall = ADCL;
-    uint8_t valh = ADCH;
-
-    uint8_t new_value = truncate_sample(valh << 8 | vall);
+    uint8_t new_value = ADCH;
     uint8_t i = singleton->cur_value;
 
     uint8_t out;
     if (filter_sample(&singleton->filters[i], new_value, &out)) {
-        singleton->values[i] = out;
+        singleton->values[i] = new_value;
         singleton->change_flag = 1;
         singleton->last_change_index = i;
     }
