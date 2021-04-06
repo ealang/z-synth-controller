@@ -29,7 +29,11 @@ class MidiDelivery:
             self._last_params = None
             return
 
-        midi_params = MidiDelivery._sensor_to_midi_values(params, self._param_mappings)
+        midi_params = list(MidiDelivery._sensor_to_midi_values(params, self._param_mappings, self._last_params))
+        if midi_params == self._last_params:
+            return
+
+        logger.debug(midi_params)
 
         commands = MidiDelivery._params_to_midi_messages(
             MidiDelivery._diff_params(self._last_params, midi_params),
@@ -56,15 +60,23 @@ class MidiDelivery:
         device.close_port()
 
     @classmethod
-    def _sensor_to_midi_values(cls, params: List[int], param_mappings: Dict[int, ParamMapping]) -> List[int]:
+    def _sensor_to_midi_values(cls, params: List[int], param_mappings: Dict[int, ParamMapping], last_params: Optional[List[int]]) -> Iterable[int]:
         """ Use configured mapping to determine midi value for each parameter. """
-        return [
-            (
-                execute_mapping(param_mappings[param_id], param_value)
-                if param_id in param_mappings else 0
-            )
-            for param_id, param_value in enumerate(params)
-        ]
+        def _get_last_param(param_id: int) -> int:
+            if last_params is None:
+                return 0
+            return last_params[param_id]
+
+        for param_id, param_value in enumerate(params):
+            if param_id in param_mappings:
+                midi_value = execute_mapping(param_mappings[param_id], param_value)
+                if midi_value is None:
+                    # latest value is invalid
+                    yield _get_last_param(param_id)
+                else:
+                    yield midi_value
+            else:
+                yield 0
 
     @classmethod
     def _params_to_midi_messages(cls, params: List[Tuple[int, int]], param_mappings: Dict[int, ParamMapping]) -> Iterable[Tuple[int, int, int]]:

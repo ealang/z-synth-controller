@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 
 
 class MappingType(Enum):
@@ -14,6 +14,7 @@ class ParamMapping:
     name: str
     nrpn: int  # midi non-registered parameter number lsb
     adc_range: Tuple[int, int]  # sensor range inclusive
+    adc_ignore_below: int  # drop any values below this value, otherwise clamp to `adc_range`
     mapping_type: MappingType
     mapping_params: Dict[str, Any]
 
@@ -23,6 +24,7 @@ class ParamMapping:
             name=data["name"],
             nrpn=data["nrpn"],
             adc_range=tuple(data["adc_range"]),
+            adc_ignore_below=data.get("adc_ignore_below", 0),
             mapping_type=MappingType(data["mapping_type"]),
             mapping_params=data.get("mapping_params", {}),
         )
@@ -44,7 +46,10 @@ def _linear_mapping(input_value: float, params: Dict[str, Any]) -> int:
     :param input_value: Value in range [0, 1)
     """
     num_positions = params.get("num_positions", 128)
-    return int(input_value * num_positions)
+    result = int(input_value * (num_positions - 1) + 0.5)
+    if params.get("invert"):
+        return num_positions - 1 - result
+    return result
 
 
 def _weighted_mapping(input_value: float, params: Dict[str, Any]) -> int:
@@ -81,12 +86,15 @@ def _voltage_to_resistance(v: int) -> float:
     return (255 / v) - 1
 
 
-def execute_mapping(mapping: ParamMapping, value: int) -> int:
+def execute_mapping(mapping: ParamMapping, value: int) -> Optional[int]:
+    if value < mapping.adc_ignore_below:
+        return None
+
     adc_min, adc_max = mapping.adc_range
     value = max(min(value, adc_max), adc_min);
 
     min_r = _voltage_to_resistance(adc_min)
     max_r = _voltage_to_resistance(adc_max + 1)
     value_r = _voltage_to_resistance(value)
-    value_r_norm = (value_r - min_r) / (max_r - min_r)
-    return _MAPPING_TYPE_FUNCS[mapping.mapping_type](value_r_norm, mapping.mapping_params)
+    value_norm = (value_r - min_r) / (max_r - min_r)
+    return _MAPPING_TYPE_FUNCS[mapping.mapping_type](value_norm, mapping.mapping_params)
