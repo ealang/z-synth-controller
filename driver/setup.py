@@ -5,6 +5,9 @@ setup(
     version='0.0.0',
     packages=['driver'],
     entry_points={
-        'console_scripts': ['driver=driver.main:main'],
+        'console_scripts': [
+            'driver=driver.main:main',
+            'calibration=driver.calibration:main',
+        ],
     }
 )
