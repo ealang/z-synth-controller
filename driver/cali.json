@@ -1,0 +1,30 @@
+{
+    "0": {
+        "adc_range": [
+            127,
+            251
+        ],
+        "adc_ignore_below": 100
+    },
+    "1": {
+        "adc_range": [
+            221,
+            221
+        ],
+        "adc_ignore_below": 100
+    },
+    "2": {
+        "adc_range": [
+            167,
+            167
+        ],
+        "adc_ignore_below": 100
+    },
+    "3": {
+        "adc_range": [
+            194,
+            210
+        ],
+        "adc_ignore_below": 100
+    }
+}
