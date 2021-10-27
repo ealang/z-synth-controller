@@ -1,43 +1,82 @@
 {
-    "0": {
-        "name": "gen1 wave type",
-        "nrpn": 0,
-        "adc_ignore_below": 120,
-        "adc_range": [149, 251],
-        "mapping_type": "linear",
-        "mapping_params": {
-            "num_positions": 8,
-            "invert": true
+    "adc_calibrations": {
+        "0": {
+            "adc_range": [
+                127,
+                251
+            ],
+            "adc_ignore_below": 100
+        },
+        "1": {
+            "adc_range": [
+                127,
+                252
+            ],
+            "adc_ignore_below": 100
+        },
+        "2": {
+            "adc_range": [
+                132,
+                252
+            ],
+            "adc_ignore_below": 100
+        },
+        "3": {
+            "adc_range": [
+                148,
+                252
+            ],
+            "adc_ignore_below": 100
         }
     },
-    "1": {
-        "name": "gen1 fine tune",
-        "nrpn": 21,
-        "mapping_type": "weighted",
-        "adc_range": [122, 251],
-        "mapping_params": {
-            "values": [
-                [[0, 63], 1],
-                [[64, 64], 20],
-                [[65, 127],  1]
-            ]
+    "param_mappings": {
+        "wave_type": {
+            "type": "linear",
+            "params": {
+                "num_positions": 8,
+                "invert": true
+            }
+        },
+        "fine_tune": {
+            "type": "weighted",
+            "params": {
+                "values": [
+                    [[0, 63], 1],
+                    [[64, 64], 20],
+                    [[65, 127],  1]
+                ]
+            }
+        },
+        "coarse_tune": {
+            "type": "weighted",
+            "params": {
+                "values": [
+                    [[0,   0], 5],
+                    [[12, 12], 5],
+                    [[13, 23],  1],
+                    [[24, 24], 5],
+                    [[25, 35],  1],
+                    [[36, 36], 5],
+                    [[48, 48], 5]
+                ]
+            }
         }
     },
-    "2": {
-        "name": "gen1 coarse tune",
-        "nrpn": 19,
-        "adc_range": [127, 251],
-        "mapping_type": "weighted",
-        "mapping_params": {
-            "values": [
-                [[0,   0], 5],
-                [[12, 12], 5],
-                [[13, 23],  1],
-                [[24, 24], 5],
-                [[25, 35],  1],
-                [[36, 36], 5],
-                [[48, 48], 5]
-            ]
+    "sensor_mappings": {
+        "0": {
+            "name": "gen1 wave type",
+            "param_mapping": "wave_type",
+            "nrpn": 0
+        },
+        "1": {
+            "name": "gen1 fine tune",
+            "param_mapping": "fine_tune",
+            "nrpn": 21
+        },
+        "2": {
+            "name": "gen1 coarse tune",
+            "param_mapping": "coarse_tune",
+            "nrpn": 19
         }
     }
 }

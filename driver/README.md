@@ -8,7 +8,7 @@ python -m venv venv
 source venv/bin/activate
 
 # Development run
-python -m driver.main --mapping-config example_config.json
+python -m driver.main --config example_config.json
 
 # Install
 python setup.py install

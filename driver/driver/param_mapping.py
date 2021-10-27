@@ -2,41 +2,7 @@ import json
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Any, Tuple, Optional
-
-
-class MappingType(Enum):
-    LINEAR = "linear"
-    WEIGHTED = "weighted"
-
-
-@dataclass
-class ParamMapping:
-    name: str
-    nrpn: int  # midi non-registered parameter number lsb
-    adc_range: Tuple[int, int]  # sensor range inclusive
-    adc_ignore_below: int  # drop any values below this value, otherwise clamp to `adc_range`
-    mapping_type: MappingType
-    mapping_params: Dict[str, Any]
-
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "ParamMapping":
-        return ParamMapping(
-            name=data["name"],
-            nrpn=data["nrpn"],
-            adc_range=tuple(data["adc_range"]),
-            adc_ignore_below=data.get("adc_ignore_below", 0),
-            mapping_type=MappingType(data["mapping_type"]),
-            mapping_params=data.get("mapping_params", {}),
-        )
-
-
-def load_param_mappings(file_path: str) -> Dict[int, ParamMapping]:
-    with open(file_path) as fp:
-        data = json.load(fp)
-    return {
-        int(param_num): ParamMapping.from_json(param_mapping)
-        for param_num, param_mapping in data.items()
-    }
+from .config import MappingType, ParamMapping
 
 
 def _linear_mapping(input_value: float, params: Dict[str, Any]) -> int:

@@ -1,10 +1,12 @@
 import argparse
+import json
 import logging
 import os
 from queue import Queue
 
 from .board_receiver import BoardReceiver
 from .board_packet import BoardLogging, ActiveParameters
+from .config import Config
 from .midi_delivery import MidiDelivery
 from .queue_get import queue_get
 
@@ -23,7 +25,7 @@ def _loop(board_queue: Queue, midi_delivery: MidiDelivery) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mapping-config", required=True)
+    parser.add_argument("--config", required=True)
     parser.add_argument("--serial-dev", default="/dev/ttyUSB0")
     parser.add_argument("--midi-dev", default="z-synth", help="Midi device to connect to (first substring match)")
     parser.add_argument("--baudrate", default=50000, type=int, help="Serial device baudrate in Hz")
@@ -33,14 +35,15 @@ def main() -> None:
 
     logging.basicConfig(level="DEBUG" if args.verbose else "INFO")
 
-    if not os.path.exists(args.mapping_config):
+    if not os.path.exists(args.config):
         raise Exception("Unable to open mapping config file")
 
-    param_mappings = load_param_mappings(args.mapping_config)
+    with open(args.config) as fp:
+        config = Config.from_dict(json.load(fp))
 
     logger.debug(f"Using serial dev: {args.serial_dev}, midi dev: {args.midi_dev}")
 
-    midi_delivery = MidiDelivery(args.midi_dev, param_mappings)
+    midi_delivery = MidiDelivery(args.midi_dev, config.param_mappings)
 
     board_queue = Queue()
     board = BoardReceiver(
@@ -51,8 +54,9 @@ def main() -> None:
     try:
         board.start()
         _loop(board_queue, midi_delivery)
-
     except KeyboardInterrupt:
+        pass
+    finally:
         board.shutdown()
         board.join()
 
