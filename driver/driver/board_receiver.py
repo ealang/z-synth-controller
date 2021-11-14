@@ -67,8 +67,8 @@ def _forever_device_reader(device_name: str, baudrate: int):
 
         try:
             return cur_device.read(num_bytes)
-        except serial.SerialException:
-            logger.debug("Failed to read from serial device %s", device_name)
+        except serial.SerialException as e:
+            logger.debug("Failed to read from serial device %s: %s", device_name, e)
             cur_device = None
             return None
 

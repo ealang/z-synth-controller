@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Any, Tuple, Optional
-from .config import MappingType, ParamMapping
+from .config import MappingType, ParamMapping, ADCCalibration
 
 
 def _linear_mapping(input_value: float, params: Dict[str, Any]) -> int:
@@ -52,15 +52,15 @@ def _voltage_to_resistance(v: int) -> float:
     return (255 / v) - 1
 
 
-def execute_mapping(mapping: ParamMapping, value: int) -> Optional[int]:
-    if value < mapping.adc_ignore_below:
+def execute_mapping(sensor_value: int, calibration: ADCCalibration, param_mapping: ParamMapping) -> Optional[int]:
+    if sensor_value < calibration.adc_ignore_below:
         return None
 
-    adc_min, adc_max = mapping.adc_range
-    value = max(min(value, adc_max), adc_min);
+    adc_min, adc_max = calibration.adc_range
+    sensor_value = max(min(sensor_value, adc_max), adc_min);
 
     min_r = _voltage_to_resistance(adc_min)
     max_r = _voltage_to_resistance(adc_max + 1)
-    value_r = _voltage_to_resistance(value)
+    value_r = _voltage_to_resistance(sensor_value)
     value_norm = (value_r - min_r) / (max_r - min_r)
-    return _MAPPING_TYPE_FUNCS[mapping.mapping_type](value_norm, mapping.mapping_params)
+    return _MAPPING_TYPE_FUNCS[param_mapping.mapping_type](value_norm, param_mapping.mapping_params)

@@ -3,18 +3,20 @@ import json
 import logging
 import os
 from queue import Queue
+from typing import Optional
 
 from .board_receiver import BoardReceiver
 from .board_packet import BoardLogging, ActiveParameters
 from .config import Config
-from .midi_delivery import MidiDelivery
+from .midi_delivery import MidiDelivery, MidiData
+from .param_mapping import execute_mapping
 from .queue_get import queue_get
 
 
 logger = logging.getLogger(__name__)
 
 
-def _loop(board_queue: Queue, midi_delivery: MidiDelivery) -> None:
+def _process_packet_loop(board_queue: Queue, midi_delivery: MidiDelivery) -> None:
     while True:
         packet = queue_get(board_queue)
         if isinstance(packet, ActiveParameters):
@@ -43,7 +45,36 @@ def main() -> None:
 
     logger.debug(f"Using serial dev: {args.serial_dev}, midi dev: {args.midi_dev}")
 
-    midi_delivery = MidiDelivery(args.midi_dev, config.param_mappings)
+    def sensor_to_midi_data(sensor_id: int, sensor_value: int) -> Optional[MidiData]:
+        if not sensor_id in config.sensor_mappings:
+            return None
+
+        sensor_mapping = config.sensor_mappings[sensor_id]
+        if sensor_mapping.nrpn < 0:  # supporting as a placeholder for unimplemented params
+            return None
+
+        param_mapping = config.param_mappings[sensor_mapping.param_mapping]
+        calibration = config.adc_calibrations[sensor_id]
+
+        midi_value = execute_mapping(
+            sensor_value,
+            calibration,
+            param_mapping,
+        )
+        if midi_value is None:
+            # Note: usually this is a 8-way switch that hasn't settled on a valid value
+            logger.debug("Discarding unmappable value: sensor_id=%d, sensor_value=%d", sensor_id, sensor_value)
+            return None
+
+        return MidiData(
+            nrpn=sensor_mapping.nrpn,
+            value=midi_value,
+        )
+
+    midi_delivery = MidiDelivery(
+        args.midi_dev,
+        sensor_to_midi_data,
+    )
 
     board_queue = Queue()
     board = BoardReceiver(
@@ -53,7 +84,7 @@ def main() -> None:
     )
     try:
         board.start()
-        _loop(board_queue, midi_delivery)
+        _process_packet_loop(board_queue, midi_delivery)
     except KeyboardInterrupt:
         pass
     finally:

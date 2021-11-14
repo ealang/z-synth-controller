@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, Tuple
 
 
 class MappingType(Enum):
