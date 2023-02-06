@@ -1,197 +1,197 @@
 {
     "adc_calibrations": {
-        "0": {
+        "4": {
             "adc_range": [
                 147,
                 252
             ],
             "adc_ignore_below": 100
         },
-        "1": {
-            "adc_range": [
-                148,
-                252
-            ],
-            "adc_ignore_below": 100
-        },
-        "2": {
-            "adc_range": [
-                130,
-                251
-            ],
-            "adc_ignore_below": 100
-        },
-        "3": {
+        "5": {
             "adc_range": [
                 129,
                 252
             ],
             "adc_ignore_below": 100
         },
-        "4": {
+        "6": {
             "adc_range": [
-                148,
-                251
-            ],
-            "adc_ignore_below": 100
-        },
-        "5": {
-            "adc_range": [
-                126,
+                129,
                 251
             ],
             "adc_ignore_below": 100
         },
         "7": {
             "adc_range": [
-                148,
-                251
+                130,
+                252
             ],
             "adc_ignore_below": 100
         },
         "8": {
             "adc_range": [
-                147,
+                128,
                 251
             ],
             "adc_ignore_below": 100
         },
         "9": {
             "adc_range": [
-                148,
+                128,
                 251
             ],
             "adc_ignore_below": 100
         },
         "10": {
             "adc_range": [
-                126,
-                250
+                130,
+                251
             ],
             "adc_ignore_below": 100
         },
         "11": {
             "adc_range": [
-                128,
+                147,
                 251
             ],
             "adc_ignore_below": 100
         },
         "12": {
             "adc_range": [
-                124,
+                148,
                 251
             ],
             "adc_ignore_below": 100
         },
         "13": {
             "adc_range": [
-                148,
+                131,
                 251
             ],
             "adc_ignore_below": 100
         },
         "14": {
             "adc_range": [
-                128,
+                127,
                 251
             ],
             "adc_ignore_below": 100
         },
         "15": {
             "adc_range": [
-                129,
+                147,
                 252
             ],
             "adc_ignore_below": 100
         },
         "16": {
             "adc_range": [
-                125,
+                127,
                 251
             ],
             "adc_ignore_below": 100
         },
         "17": {
             "adc_range": [
-                128,
+                148,
                 252
             ],
             "adc_ignore_below": 100
         },
         "18": {
             "adc_range": [
-                128,
+                130,
                 251
             ],
             "adc_ignore_below": 100
         },
         "19": {
             "adc_range": [
-                129,
-                250
+                147,
+                251
             ],
             "adc_ignore_below": 100
         },
         "20": {
             "adc_range": [
-                127,
-                251
+                129,
+                252
             ],
             "adc_ignore_below": 100
         },
         "21": {
             "adc_range": [
-                129,
+                128,
                 251
             ],
             "adc_ignore_below": 100
         },
         "22": {
             "adc_range": [
-                127,
+                148,
                 251
             ],
             "adc_ignore_below": 100
         },
         "23": {
             "adc_range": [
-                130,
-                252
+                131,
+                251
             ],
             "adc_ignore_below": 100
         },
         "24": {
             "adc_range": [
-                129,
+                126,
                 251
             ],
             "adc_ignore_below": 100
         },
         "25": {
             "adc_range": [
-                127,
+                128,
                 251
             ],
             "adc_ignore_below": 100
         },
         "26": {
             "adc_range": [
-                130,
-                251
+                129,
+                252
             ],
             "adc_ignore_below": 100
         },
         "27": {
             "adc_range": [
-                131,
+                126,
                 251
             ],
             "adc_ignore_below": 100
         },
         "28": {
             "adc_range": [
-                128,
+                130,
+                251
+            ],
+            "adc_ignore_below": 100
+        },
+        "29": {
+            "adc_range": [
+                127,
+                251
+            ],
+            "adc_ignore_below": 100
+        },
+        "30": {
+            "adc_range": [
+                130,
+                251
+            ],
+            "adc_ignore_below": 100
+        },
+        "31": {
+            "adc_range": [
+                125,
                 251
             ],
             "adc_ignore_below": 100
@@ -238,152 +238,152 @@
         }
     },
     "sensor_mappings": {
-        "0": {
+        "17": {
             "name": "gen1 wave type",
             "param_mapping": "8pos",
             "nrpn": 0
         },
-        "11": {
+        "14": {
             "name": "gen1 coarse tune",
             "param_mapping": "coarse_tune",
             "nrpn": 19
         },
-        "10": {
+        "27": {
             "name": "gen1 fine tune",
             "param_mapping": "fine_tune",
             "nrpn": 4
         },
-        "17": {
+        "21": {
             "name": "gen1 amp",
             "param_mapping": "default",
             "nrpn": 2
         },
 
-        "13": {
+        "15": {
             "name": "gen2 wave",
             "param_mapping": "8pos",
             "nrpn": 1
         },
-        "14": {
+        "16": {
             "name": "gen2 coarse tune",
             "param_mapping": "coarse_tune",
             "nrpn": 20
         },
-        "16": {
+        "24": {
             "name": "gen2 amp",
             "param_mapping": "default",
             "nrpn": 24
         },
 
-        "7": {
+        "19": {
             "name": "gen3 wave",
             "param_mapping": "8pos",
             "nrpn": 23
         },
-        "25": {
+        "20": {
             "name": "gen3 coarse tune",
             "param_mapping": "coarse_tune",
             "nrpn": 22
         },
-        "19": {
+        "18": {
             "name": "gen3 amp",
             "param_mapping": "default",
             "nrpn": 25
         },
 
 
-        "12": {
+        "29": {
             "name": "fm attack",
             "param_mapping": "default",
             "nrpn": 10
         },
-        "24": {
+        "9": {
             "name": "fm decay",
             "param_mapping": "default",
             "nrpn": 11
         },
-        "27": {
+        "30": {
             "name": "fm sustain",
             "param_mapping": "default",
             "nrpn": 12
         },
-        "26": {
+        "31": {
             "name": "fm release",
             "param_mapping": "default",
             "nrpn": 13
         },
 
-        "15": {
+        "28": {
             "name": "am attack",
             "param_mapping": "default",
             "nrpn": 6
         },
-        "21": {
+        "23": {
             "name": "am decay",
             "param_mapping": "default",
             "nrpn": 7
         },
-        "18": {
+        "25": {
             "name": "am sustain",
             "param_mapping": "default",
             "nrpn": 8
         },
-        "28": {
+        "26": {
             "name": "am release",
             "param_mapping": "default",
             "nrpn": 9
         },
 
-        "3": {
-            "name": "fm cutoff",
+        "10": {
+            "name": "filt cutoff",
             "param_mapping": "default",
             "nrpn": 3
         },
-        "8": {
-            "name": "fm param",
+        "22": {
+            "name": "filt param",
             "param_mapping": "8pos",
             "nrpn": -1
         },
 
 
-        "4": {
+        "12": {
             "name": "lfo wave",
             "param_mapping": "8pos",
             "nrpn": 17
         },
-        "5": {
+        "8": {
             "name": "lfo freq",
             "param_mapping": "default",
             "nrpn": 16
         },
-        "9": {
+        "4": {
             "name": "lfo param",
             "param_mapping": "8pos",
             "nrpn": -1
         },
-        "23": {
+        "6": {
             "name": "lfo amp send",
             "param_mapping": "default",
             "nrpn": 28
         },
-        "22": {
+        "7": {
             "name": "lfo fm send",
             "param_mapping": "default",
             "nrpn": 27
         },
 
 
-        "1": {
+        "11": {
             "name": "main effect",
             "param_mapping": "coarse_tune",
             "nrpn": -1
         },
-        "20": {
+        "13": {
             "name": "main effect amount",
             "param_mapping": "default",
             "nrpn": 14
         },
-        "2": {
+        "5": {
             "name": "main amp",
             "param_mapping": "default",
             "nrpn": 18
