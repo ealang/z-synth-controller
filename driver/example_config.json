@@ -357,19 +357,19 @@
             "nrpn": 16
         },
         "4": {
-            "name": "lfo param",
+            "name": "lfo param select",
             "param_mapping": "8pos",
-            "nrpn": -1
+            "nrpn": 29
         },
         "6": {
-            "name": "lfo amp send",
+            "name": "lfo param amount",
             "param_mapping": "default",
-            "nrpn": 28
+            "nrpn": 30
         },
         "7": {
             "name": "lfo fm send",
             "param_mapping": "default",
-            "nrpn": 27
+            "nrpn": 26
         },
 
 
