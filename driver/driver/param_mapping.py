@@ -12,7 +12,8 @@ def _linear_mapping(input_value: float, params: Dict[str, Any]) -> int:
     :param input_value: Value in range [0, 1)
     """
     num_positions = params.get("num_positions", 128)
-    result = int(input_value * (num_positions - 1) + 0.5)
+
+    result = int(input_value * num_positions)
     if params.get("invert"):
         return num_positions - 1 - result
     return result

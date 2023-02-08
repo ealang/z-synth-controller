@@ -3,14 +3,14 @@
         "4": {
             "adc_range": [
                 147,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
         "5": {
             "adc_range": [
                 129,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
@@ -24,7 +24,7 @@
         "7": {
             "adc_range": [
                 130,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
@@ -80,7 +80,7 @@
         "15": {
             "adc_range": [
                 147,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
@@ -94,13 +94,13 @@
         "17": {
             "adc_range": [
                 148,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
         "18": {
             "adc_range": [
-                130,
+                132,
                 251
             ],
             "adc_ignore_below": 100
@@ -115,7 +115,7 @@
         "20": {
             "adc_range": [
                 129,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
@@ -157,7 +157,7 @@
         "26": {
             "adc_range": [
                 129,
-                252
+                251
             ],
             "adc_ignore_below": 100
         },
@@ -229,6 +229,15 @@
                 ]
             }
         },
+        "clipped": {
+            "type": "weighted",
+            "params": {
+                "values": [
+                    [[0, 0], 3],
+                    [[1, 127], 1]
+                ]
+            }
+        },
         "default": {
             "type": "linear",
             "params": {
@@ -255,7 +264,7 @@
         },
         "21": {
             "name": "gen1 amp",
-            "param_mapping": "default",
+            "param_mapping": "clipped",
             "nrpn": 2
         },
 
@@ -271,7 +280,7 @@
         },
         "24": {
             "name": "gen2 amp",
-            "param_mapping": "default",
+            "param_mapping": "clipped",
             "nrpn": 24
         },
 
@@ -287,7 +296,7 @@
         },
         "18": {
             "name": "gen3 amp",
-            "param_mapping": "default",
+            "param_mapping": "clipped",
             "nrpn": 25
         },
 
@@ -363,12 +372,12 @@
         },
         "6": {
             "name": "lfo param amount",
-            "param_mapping": "default",
+            "param_mapping": "clipped",
             "nrpn": 30
         },
         "7": {
             "name": "lfo fm send",
-            "param_mapping": "default",
+            "param_mapping": "clipped",
             "nrpn": 26
         },
 
@@ -380,7 +389,7 @@
         },
         "13": {
             "name": "main effect amount",
-            "param_mapping": "default",
+            "param_mapping": "clipped",
             "nrpn": 14
         },
         "5": {
